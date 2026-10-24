@@ -1,1 +1,2 @@
-To implement a client-server application using Java socket programming (UDP) where the client accepts a sentence from the user and sends it to the server. The server expands common chat abbreviations (such as "lol", "idk", "tbh") present in the sentence into their full forms and sends the expanded sentence back to the client, which then prints it.
+To implement a multi-user chat server using TCP (Transmission Control Protocol) in Java, where multiple clients can connect to a server simultaneously and exchange messages in real time.
+
