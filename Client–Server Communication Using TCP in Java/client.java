@@ -1,41 +1,77 @@
 
+import java.io.*;
 import java.net.*;
-import java.util.Scanner;
+import java.util.*;
 
-public class TimeClient {
+public class Client {
     public static void main(String[] args) throws Exception {
-        DatagramSocket client = new DatagramSocket();
+
+        Socket socket = new Socket("localhost", 9002);
+
         Scanner sc = new Scanner(System.in);
+        Random rand = new Random();
 
-        System.out.print("Enter server IP: ");
-        String ip = sc.nextLine();
+        System.out.print("Enter order of matrix: ");
+        int n = sc.nextInt();
 
-        System.out.print("Enter port: ");
-        int port = sc.nextInt();
+        int[][] matrix = new int[n][n];
 
-        InetAddress address = InetAddress.getByName(ip);
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                matrix[i][j] = rand.nextInt(50) + 1;
+            }
+        }
 
-        byte[] data = "TIME".getBytes();
+        int type = rand.nextInt(4);
 
-        DatagramPacket request = new DatagramPacket(
-            data, data.length, address, port
-        );
+        switch (type) {
+            case 0:
+                for (int i = 0; i < n; i++)
+                    for (int j = 0; j < n; j++)
+                        if (i > j)
+                            matrix[i][j] = 0;
+                break;
 
-        client.send(request);
+            case 1:
+                for (int i = 0; i < n; i++)
+                    for (int j = 0; j < n; j++)
+                        if (i < j)
+                            matrix[i][j] = 0;
+                break;
 
-        byte[] buffer = new byte[1024];
+            case 2:
+                for (int i = 0; i < n; i++)
+                    for (int j = 0; j < n; j++)
+                        if (i != j)
+                            matrix[i][j] = 0;
+                break;
 
-        DatagramPacket reply =
-            new DatagramPacket(buffer, buffer.length);
+            default:
+                break;
+        }
 
-        client.receive(reply);
+        System.out.println("Generated Matrix:");
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println();
+        }
 
-        String time = new String(
-            reply.getData(), 0, reply.getLength()
-        );
+        ObjectOutputStream out =
+            new ObjectOutputStream(socket.getOutputStream());
 
-        System.out.println("Server Time: " + time);
+        out.writeInt(n);
+        out.writeObject(matrix);
+        out.flush();
 
-        client.close();
+        DataInputStream in =
+            new DataInputStream(socket.getInputStream());
+
+        String result = in.readUTF();
+        System.out.println("Matrix Type: " + result);
+
+        socket.close();
+        sc.close();
     }
 }
